@@ -13,10 +13,10 @@ import {
 } from "../service/propertyServices";
 
 interface PropertyState {
-  items: Property[];         // getallProperty (owner / admin)
-  approvedItems: Property[]; // getapprovedProperty (buyer)
-  savedItems: Property[];    // getsavedProperty (buyer favourites)
-  selected: Property | null; // getPropertyById
+  items: Property[];         
+  approvedItems: Property[]; 
+  savedItems: Property[];    
+  selected: Property | null; 
   loading: boolean;
   error: string;
 }
@@ -30,7 +30,6 @@ const initialState: PropertyState = {
   error: "",
 };
 
-// GET /properties
 export const fetchProperties = createAsyncThunk<Property[]>(
   "property/fetchAll",
   async (_, { rejectWithValue }) => {
@@ -42,7 +41,6 @@ export const fetchProperties = createAsyncThunk<Property[]>(
   }
 );
 
-// GET /properties/approved
 export const fetchApprovedProperties = createAsyncThunk<Property[]>(
   "property/fetchApproved",
   async (_, { rejectWithValue }) => {
@@ -54,7 +52,6 @@ export const fetchApprovedProperties = createAsyncThunk<Property[]>(
   }
 );
 
-// GET /properties/:id
 export const fetchPropertyById = createAsyncThunk<Property | null, string>(
   "property/fetchById",
   async (id, { rejectWithValue }) => {
@@ -66,7 +63,6 @@ export const fetchPropertyById = createAsyncThunk<Property | null, string>(
   }
 );
 
-// POST /properties
 export const addProperty = createAsyncThunk<Property, Omit<Property, "id">>(
   "property/add",
   async (property, { rejectWithValue }) => {
@@ -78,7 +74,6 @@ export const addProperty = createAsyncThunk<Property, Omit<Property, "id">>(
   }
 );
 
-// DELETE /properties/:id
 export const deleteProperty = createAsyncThunk<Property | null, string>(
   "property/delete",
   async (id, { rejectWithValue }) => {
@@ -90,7 +85,6 @@ export const deleteProperty = createAsyncThunk<Property | null, string>(
   }
 );
 
-// PATCH /properties/status
 export const changePropertyStatus = createAsyncThunk<Property | null, Updatestatus>(
   "property/updateStatus",
   async (body, { rejectWithValue }) => {
@@ -102,7 +96,6 @@ export const changePropertyStatus = createAsyncThunk<Property | null, Updatestat
   }
 );
 
-// GET /saved-properties
 export const fetchSaved = createAsyncThunk<Property[]>(
   "property/fetchSaved",
   async (_, { rejectWithValue }) => {
@@ -114,7 +107,6 @@ export const fetchSaved = createAsyncThunk<Property[]>(
   }
 );
 
-// POST /saved-properties/:id
 export const savePropertyThunk = createAsyncThunk<void, string>(
   "property/save",
   async (id, { rejectWithValue }) => {
@@ -126,7 +118,6 @@ export const savePropertyThunk = createAsyncThunk<void, string>(
   }
 );
 
-// DELETE /saved-properties/:id
 export const removeSaved = createAsyncThunk<void, string>(
   "property/removeSaved",
   async (id, { rejectWithValue }) => {
@@ -151,7 +142,6 @@ const propertySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetch all
       .addCase(fetchProperties.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -165,7 +155,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // fetch approved
       .addCase(fetchApprovedProperties.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -179,7 +168,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // fetch by id
       .addCase(fetchPropertyById.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -194,7 +182,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // add
       .addCase(addProperty.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -208,12 +195,11 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // delete
       .addCase(deleteProperty.pending, (state) => {
         state.error = "";
       })
       .addCase(deleteProperty.fulfilled, (state, action) => {
-        const id = action.meta.arg; // jo id dispatch mein bheji thi
+        const id = action.meta.arg;
         state.items = state.items.filter((p) => p.id !== id);
         state.approvedItems = state.approvedItems.filter((p) => p.id !== id);
         state.savedItems = state.savedItems.filter((p) => p.id !== id);
@@ -222,7 +208,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // update status
       .addCase(changePropertyStatus.pending, (state) => {
         state.error = "";
       })
@@ -236,7 +221,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // fetch saved
       .addCase(fetchSaved.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -250,7 +234,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // save (favourite mein add)
       .addCase(savePropertyThunk.fulfilled, (state, action) => {
         const id = action.meta.arg;
         const found = state.approvedItems.find((p) => p.id === id);
@@ -262,7 +245,6 @@ const propertySlice = createSlice({
         state.error = (action.payload as string) || "Something went wrong";
       })
 
-      // remove saved
       .addCase(removeSaved.fulfilled, (state, action) => {
         const id = action.meta.arg;
         state.savedItems = state.savedItems.filter((p) => p.id !== id);

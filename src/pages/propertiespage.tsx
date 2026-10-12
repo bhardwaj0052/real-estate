@@ -1,36 +1,26 @@
 import { Box, Button, MenuItem, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getallProperty, removePropertyById } from "../service/propertyServices";
-import type { Property } from "../types/property";
 import PropertyCard from "../components/propertyCard";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { deleteProperty, fetchProperties } from "../store/propertySlice";
 
 export default function PropertyPage() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const dispatch = useAppDispatch();
+  const property = useAppSelector((state) => state.property);
+  const properties = property.items;
+  const loading = property.loading;
+  const error = property.error;
   const [statusFilter, setStatusFilter] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadProperty = async () => {
-      try {
-        const resp = await getallProperty();
-        setProperties(resp);
-      } catch {
-        setError("Unable to load properties");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProperty();
-  }, []);
+    dispatch(fetchProperties());
+  }, [dispatch]);
 
   const handledelete = async (id: string) => {
     try {
-      await removePropertyById(id);
-      setProperties((prev) => prev.filter((p) => p.id !== id));
+      await dispatch(deleteProperty(id)).unwrap();
     } catch {
       alert("Unable to delete property");
     }
@@ -96,18 +86,18 @@ export default function PropertyPage() {
           gap: 3,
         }}
       >
-        {filteredProperties.map((property) => (
-          <PropertyCard key={property.id} property={property}>
-            {property.rejectionReason && (
-              <Typography variant="body2" color="error">
-                Rejected: {property.rejectionReason}
-              </Typography>
-            )}
-            <Button color="error" onClick={() => handledelete(property.id!)}>
-              Delete
-            </Button>
-          </PropertyCard>
-        ))}
+        {filteredProperties.map((item) => (
+  <PropertyCard key={item.id} property={item}>
+    {item.rejectionReason && (
+      <Typography variant="body2" color="error">
+        Rejected: {item.rejectionReason}
+      </Typography>
+    )}
+    <Button color="error" onClick={() => handledelete(item.id!)}>
+      Delete
+    </Button>
+  </PropertyCard>
+))}
       </Box>
     </Box>
   );

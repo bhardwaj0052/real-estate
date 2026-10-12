@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Button, Stack, TextField } from "@mui/material";
 import type { Property } from "../types/property";
-import { updateStatus } from "../service/propertyServices";
 import PropertyCard from "./propertyCard";
+import { useAppDispatch } from "../store/hooks";
+import { changePropertyStatus } from "../store/propertySlice";
 
 interface Props {
   property: Property;
-  onUpdated?: () => void;
 }
 
-export default function PropertyStatus({ property, onUpdated }: Props) {
+export default function PropertyStatus({ property }: Props) {
+  const dispatch = useAppDispatch();
   const [show, setShow] = useState(false);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,16 +26,16 @@ export default function PropertyStatus({ property, onUpdated }: Props) {
     if (status === "REJECTED" && !rejectionReason) {
       return;
     }
-
     setLoading(true);
     try {
-      if (status === "APPROVED") {
-        await updateStatus({ id: property.id, status });
-      } else {
-        await updateStatus({ id: property.id, status, rejectionReason });
+      if (status === "REJECTED") {
+        await dispatch(
+          changePropertyStatus({ id: property.id, status, rejectionReason }),
+        ).unwrap();
         closeReject();
+      } else {
+        await dispatch(changePropertyStatus({ id: property.id, status })).unwrap();
       }
-      onUpdated?.();
     } catch {
       alert("Unable to update status");
     } finally {

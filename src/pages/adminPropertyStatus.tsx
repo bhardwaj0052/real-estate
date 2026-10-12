@@ -1,30 +1,24 @@
 import { useEffect, useState } from "react";
-import type { Property } from "../types/property";
-import { getallProperty } from "../service/propertyServices";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress, MenuItem, TextField, Typography } from "@mui/material";
 import PropertyStatus from "../components/PropertyStatus";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchProperties } from "../store/propertySlice";
 
 export default function AdminPropertyStatus() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [refresh, setRefresh] = useState(0);
+  const dispatch = useAppDispatch();
+  const property = useAppSelector((state) => state.property);
+  const properties = property.items;
+  const loading = property.loading;
+  const error = property.error;
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
-    const loadProperty = async () => {
-      try {
-        const resp = await getallProperty();
-        setProperties(resp);
-        setError("");
-      } catch {
-        setError("Unable to load properties");
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchProperties());
+  }, [dispatch]);
 
-    loadProperty();
-  }, [refresh]);
+  const filteredProperties = statusFilter
+    ? properties.filter((p) => p.status === statusFilter)
+    : properties;
 
   if (loading) {
     return (
@@ -42,19 +36,38 @@ export default function AdminPropertyStatus() {
     );
   }
 
-  if (properties.length === 0) {
-    return (
-      <Typography align="center" sx={{ mt: 10 }}>
-        No properties found
-      </Typography>
-    );
-  }
-
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
-        Property Status
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          Property Status
+        </Typography>
+
+        <TextField
+          select
+          size="small"
+          label="Status"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          sx={{ minWidth: 150 }}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="PENDING">Pending</MenuItem>
+          <MenuItem value="APPROVED">Approved</MenuItem>
+          <MenuItem value="REJECTED">Rejected</MenuItem>
+        </TextField>
+      </Box>
+
+      {filteredProperties.length === 0 && <Typography>No properties found</Typography>}
 
       <Box
         sx={{
@@ -63,12 +76,8 @@ export default function AdminPropertyStatus() {
           gap: 3,
         }}
       >
-        {properties.map((property) => (
-          <PropertyStatus
-            key={property.id}
-            property={property}
-            onUpdated={() => setRefresh((r) => r + 1)}
-          />
+        {filteredProperties.map((item) => (
+          <PropertyStatus key={item.id} property={item} />
         ))}
       </Box>
     </Box>
