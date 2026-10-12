@@ -6,7 +6,6 @@ interface Roleprop {
 }
 export default function Navbar({ roles }: Roleprop) {
   const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("role");
@@ -15,7 +14,7 @@ export default function Navbar({ roles }: Roleprop) {
 
   return (
     <>
-      <AppBar position="fixed">
+      <AppBar sx={{position:"fixed", backgroundColor:"black"}}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
             Real-Estate

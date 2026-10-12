@@ -13,18 +13,44 @@ import {
 import { useNavigate } from "react-router-dom";
 import { createProperty } from "../service/propertyServices";
 
-const propertyTypes = ["Apartment", "Villa", "Independent House", "Plot", "Commercial"];
+const propertyTypes = [
+  "Apartment",
+  "Villa",
+  "Independent House",
+  "Plot",
+  "Commercial",
+];
 
 const validationSchema = Yup.object({
-  title: Yup.string().trim().required("Title is required"),
-  description: Yup.string().trim().required("Description is required"),
-  propertyType: Yup.string().oneOf(propertyTypes).required("Property type is required"),
-  bhk: Yup.number().typeError("BHK must be a number").integer().min(0).required("BHK is required"),
-  sqft: Yup.number().typeError("Sqft must be a number").positive().required("Sqft is required"),
-  price: Yup.number().typeError("Price must be a number").positive().required("Price is required"),
-  fullAddress: Yup.string().trim().required("Full address is required"),
-  latitude: Yup.number().typeError("Latitude must be a number").min(-90).max(90).required("Latitude is required"),
-  longitude: Yup.number().typeError("Longitude must be a number").min(-180).max(180).required("Longitude is required"),
+  title: Yup.string().trim().min(6).required("Title is required"),
+  description: Yup.string().trim().min(6).required("Description is required"),
+  propertyType: Yup.string()
+    .oneOf(propertyTypes)
+    .required("Property type is required"),
+  bhk: Yup.number()
+    .typeError("BHK must be a number")
+    .integer()
+    .min(0)
+    .required("BHK is required"),
+  sqft: Yup.number()
+    .typeError("Sqft must be a number")
+    .positive()
+    .required("Sqft is required"),
+  price: Yup.number()
+    .typeError("Price must be a number")
+    .positive()
+    .required("Price is required"),
+  fullAddress: Yup.string().trim().min(6).required("Full address is required"),
+  latitude: Yup.number()
+    .typeError("Latitude must be a number")
+    .min(-90)
+    .max(90)
+    .required("Latitude is required"),
+  longitude: Yup.number()
+    .typeError("Longitude must be a number")
+    .min(-180)
+    .max(180)
+    .required("Longitude is required"),
   amenities: Yup.string().trim().required("Add at least one amenity"),
   images: Yup.string()
     .trim()
@@ -34,7 +60,7 @@ const validationSchema = Yup.object({
         .split(",")
         .map((u) => u.trim())
         .filter(Boolean)
-        .every((u) => Yup.string().url().isValidSync(u))
+        .every((u) => Yup.string().url().isValidSync(u)),
     ),
 });
 
@@ -57,30 +83,43 @@ export default function PropertyForm() {
     },
     validationSchema,
     onSubmit: async (values, { setStatus }) => {
-  setStatus("");
-  try {
-    await createProperty({
-      title: values.title,
-      description: values.description,
-      address: values.fullAddress,
-      lat: Number(values.latitude),
-      lng: Number(values.longitude),
-      propertyType: values.propertyType,
-      bhk: Number(values.bhk),
-      sqft: Number(values.sqft),
-      price: Number(values.price),
-      amenities: values.amenities.split(",").map((a) => a.trim()).filter(Boolean),
-      images: values.images.split(",").map((a) => a.trim()).filter(Boolean),
-      id: ""
-    });
-    navigate("/");
-  } catch {
-    setStatus("Unable to create property. Please try again.");
-  }
-},
+      setStatus("");
+      try {
+        await createProperty({
+          title: values.title,
+          description: values.description,
+          address: values.fullAddress,
+          lat: Number(values.latitude),
+          lng: Number(values.longitude),
+          propertyType: values.propertyType,
+          bhk: Number(values.bhk),
+          sqft: Number(values.sqft),
+          price: Number(values.price),
+          amenities: values.amenities
+            .split(",")
+            .map((a) => a.trim())
+            .filter(Boolean),
+          images: values.images
+            .split(",")
+            .map((a) => a.trim())
+            .filter(Boolean),
+        });
+        navigate("/owner-property");
+      } catch {
+        setStatus("Unable to create property. Please try again.");
+      }
+    },
   });
 
-  const { values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting } = formik;
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    isSubmitting,
+  } = formik;
 
   return (
     <Box sx={{ mt: 5, marginLeft: 50, pb: 4 }}>
@@ -99,7 +138,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.title && errors.title && (
-              <Typography component="p" color="error" variant="caption">{errors.title}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.title}
+              </Typography>
             )}
 
             <TextField
@@ -112,7 +153,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.description && errors.description && (
-              <Typography component="p" color="error" variant="caption">{errors.description}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.description}
+              </Typography>
             )}
 
             <TextField
@@ -130,7 +173,9 @@ export default function PropertyForm() {
               ))}
             </TextField>
             {touched.propertyType && errors.propertyType && (
-              <Typography component="p" color="error" variant="caption">{errors.propertyType}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.propertyType}
+              </Typography>
             )}
 
             <TextField
@@ -142,7 +187,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.bhk && errors.bhk && (
-              <Typography component="p" color="error" variant="caption">{errors.bhk}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.bhk}
+              </Typography>
             )}
 
             <TextField
@@ -154,7 +201,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.sqft && errors.sqft && (
-              <Typography component="p" color="error" variant="caption">{errors.sqft}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.sqft}
+              </Typography>
             )}
 
             <TextField
@@ -166,7 +215,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.price && errors.price && (
-              <Typography component="p" color="error" variant="caption">{errors.price}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.price}
+              </Typography>
             )}
 
             <TextField
@@ -179,7 +230,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.fullAddress && errors.fullAddress && (
-              <Typography component="p" color="error" variant="caption">{errors.fullAddress}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.fullAddress}
+              </Typography>
             )}
 
             <TextField
@@ -191,7 +244,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.latitude && errors.latitude && (
-              <Typography component="p" color="error" variant="caption">{errors.latitude}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.latitude}
+              </Typography>
             )}
 
             <TextField
@@ -203,7 +258,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.longitude && errors.longitude && (
-              <Typography component="p" color="error" variant="caption">{errors.longitude}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.longitude}
+              </Typography>
             )}
 
             <TextField
@@ -215,7 +272,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.amenities && errors.amenities && (
-              <Typography component="p" color="error" variant="caption">{errors.amenities}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.amenities}
+              </Typography>
             )}
 
             <TextField
@@ -227,7 +286,9 @@ export default function PropertyForm() {
               onBlur={handleBlur}
             />
             {touched.images && errors.images && (
-              <Typography component="p" color="error" variant="caption">{errors.images}</Typography>
+              <Typography component="p" color="error" variant="caption">
+                {errors.images}
+              </Typography>
             )}
 
             <Button type="submit" variant="contained" disabled={isSubmitting}>

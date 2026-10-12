@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import type { Property } from "../types/property";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, TextField } from "@mui/material";
 import PropertyCard from "../components/propertyCard";
 import { getapprovedProperty, saveProperty } from "../service/propertyServices";
 
 export default function ApprovedProperty() {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredproperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -14,6 +15,7 @@ export default function ApprovedProperty() {
       try {
         const resp = await getapprovedProperty();
         setProperties(resp);
+        setFilteredProperties(resp);
       } catch {
         setError("Unable to load properties");
       } finally {
@@ -30,6 +32,22 @@ export default function ApprovedProperty() {
       throw new Error("Error:---", { cause: error });
     }
   };
+  const searchprop = (value: string) => {
+    const text = value.trim().toLowerCase();
+
+    if (!text) {
+      setFilteredProperties(properties);
+      return;
+    }
+
+    setFilteredProperties(
+      properties.filter(
+        (property) =>
+          property.title.toLowerCase().includes(text) ||
+          property.address.toLowerCase().includes(text),
+      ),
+    );
+  };
   if (loading) return <Box>Loading...</Box>;
   if (error || !properties) {
     return (
@@ -42,7 +60,6 @@ export default function ApprovedProperty() {
     <Box sx={{ p: 3 }}>
       <Box
         sx={{
-          display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           mb: 3,
@@ -51,15 +68,13 @@ export default function ApprovedProperty() {
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Properties
         </Typography>
+        <TextField
+          label="Search by title, address or description"
+          onChange={(e) =>
+            searchprop(e.target.value)}
+          fullWidth
+        />
       </Box>
-
-      {loading && <Typography>Loading...</Typography>}
-
-      {error && (
-        <Typography component="p" color="error">
-          {error}
-        </Typography>
-      )}
 
       {!loading && !error && properties.length === 0 && (
         <Typography>No properties found</Typography>
@@ -72,7 +87,7 @@ export default function ApprovedProperty() {
           gap: 3,
         }}
       >
-        {properties.map((property) => (
+        {filteredproperties.map((property) => (
           <PropertyCard
             key={property.id}
             property={property}

@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, MenuItem, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getallProperty, removePropertyById } from "../service/propertyServices";
@@ -9,7 +9,8 @@ export default function PropertyPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate=useNavigate()
+  const [statusFilter, setStatusFilter] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -25,44 +26,68 @@ export default function PropertyPage() {
 
     loadProperty();
   }, []);
-  const handledelete = async(id:string)=>{
+
+  const handledelete = async (id: string) => {
     try {
       await removePropertyById(id);
-    } catch (error) {
-      throw new Error("Error:---",{cause:error})
+      setProperties((prev) => prev.filter((p) => p.id !== id));
+    } catch {
+      alert("Unable to delete property");
     }
-  }
-  if (loading) return <Box>Loading...</Box>
-  if (error || !properties) {
+  };
+
+  const filteredProperties = statusFilter
+    ? properties.filter((p) => p.status === statusFilter)
+    : properties;
+
+  if (loading) return <Box sx={{ p: 3 }}>Loading...</Box>;
+
+  if (error) {
     return (
       <Typography color="error" align="center" sx={{ mt: 10 }}>
-        {error || "property not found"}
+        {error}
       </Typography>
     );
   }
+
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
+          mb: 3,
+        }}
+      >
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Properties
         </Typography>
 
-        <Button variant="contained" onClick={()=>navigate("/owner-property/add")}>
-          + ADD
-        </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <TextField
+            select
+            size="small"
+            label="Status"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="PENDING">Pending</MenuItem>
+            <MenuItem value="APPROVED">Approved</MenuItem>
+            <MenuItem value="REJECTED">Rejected</MenuItem>
+          </TextField>
+
+          <Button variant="contained" onClick={() => navigate("/owner-property/add")}>
+            + ADD
+          </Button>
+        </Box>
       </Box>
 
-      {loading && <Typography>Loading...</Typography>}
-
-      {error && (
-        <Typography component="p" color="error">
-          {error}
-        </Typography>
-      )}
-
-      {!loading && !error && properties.length === 0 && (
-        <Typography>No properties found</Typography>
-      )}
+      {filteredProperties.length === 0 && <Typography>No properties found</Typography>}
 
       <Box
         sx={{
@@ -71,9 +96,16 @@ export default function PropertyPage() {
           gap: 3,
         }}
       >
-        {properties.map((property) => (
+        {filteredProperties.map((property) => (
           <PropertyCard key={property.id} property={property}>
-            <Button onClick={()=>handledelete(property.id)}>Delete</Button>
+            {property.rejectionReason && (
+              <Typography variant="body2" color="error">
+                Rejected: {property.rejectionReason}
+              </Typography>
+            )}
+            <Button color="error" onClick={() => handledelete(property.id!)}>
+              Delete
+            </Button>
           </PropertyCard>
         ))}
       </Box>
