@@ -65,8 +65,8 @@ export default function Authform() {
           await login({ email: values.email, password: values.password });
           navigate("/");
         }
-      } catch {
-        alert("Something went wrong");
+      } catch (error) {
+        throw new Error("Error:--",{cause:error})
       }
     },
   });
