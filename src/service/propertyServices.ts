@@ -1,7 +1,7 @@
 import type { Property, Updatestatus } from "../types/property";
 import api from "./axiot";
 
-export async function createProperty(property:Property) {
+export async function createProperty(property:Omit<Property,"id">) {
     try {
         const res = await api.post("/properties",property)
         return res.data;

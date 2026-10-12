@@ -24,6 +24,7 @@ export default function FavProperty(){
 
     loadProperty();
   }, []);
+
   const removesave = async(id:string)=>{
     try {
       await removeSavedProperty(id)
@@ -32,6 +33,7 @@ export default function FavProperty(){
       throw new Error("Error:--",{cause: error})
     }
   }
+
   if (loading) return <Box>Loading...</Box>
   if (error || !properties) {
     return (
@@ -44,7 +46,7 @@ export default function FavProperty(){
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Properties
+          Favourite
         </Typography>
       </Box>
 

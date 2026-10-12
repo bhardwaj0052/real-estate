@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   Card,
-  CardContent,
   Chip,
   CircularProgress,
   Divider,
@@ -48,40 +47,76 @@ export default function Profile() {
     );
   }
 
+  const details = [
+    { label: "User ID", value: user.id },
+    { label: "Name", value: user.name },
+    { label: "Email", value: user.email },
+    { label: "Phone", value: user.phone },
+    { label: "Role", value: user.role },
+  ];
+
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 10, p: 2 }}>
-      <Card sx={{ width: "100%", maxWidth: 420 }}>
-        <CardContent>
-          <Stack sx={{spacing:2, alignItems:"center"}}>
-            <Avatar sx={{ width: 72, height: 72, fontSize: 32 }}>
-              {user.name.charAt(0).toUpperCase()}
-            </Avatar>
+    <Box sx={{ display: "flex", justifyContent: "center", p: 2, mt: 4 }}>
+      <Card sx={{ width: "100%", maxWidth: 460, borderRadius: 3, overflow: "hidden" }}>
+        {/* Header */}
+        <Box
+          sx={{
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            py: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 88,
+              height: 88,
+              fontSize: 40,
+              bgcolor: "white",
+              color: "primary.main",
+              fontWeight: 700,
+            }}
+          >
+            {user.name.charAt(0).toUpperCase()}
+          </Avatar>
 
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              {user.name}
-            </Typography>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            {user.name}
+          </Typography>
 
-            <Chip label={user.role} color="primary" size="small" />
-          </Stack>
-
-          <Divider sx={{ my: 3 }} />
-
-          <Stack spacing={2}>
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                Email
+          <Chip
+            label={user.role}
+            size="small"
+            sx={{ bgcolor: "white", color: "primary.main", fontWeight: 600 }}
+          />
+        </Box>
+            
+        <Stack divider={<Divider />} sx={{ px: 3, py: 1 }}>
+          {details.map((item) => (
+            <Box
+              key={item.label}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+                py: 1.5,
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                {item.label}
               </Typography>
-              <Typography>{user.email}</Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="caption" color="text.secondary">
-                Phone
+              <Typography
+                sx={{ fontWeight: 500, wordBreak: "break-all", textAlign: "right" }}
+              >
+                {item.value ?? "-"}
               </Typography>
-              <Typography>{user.phone}</Typography>
             </Box>
-          </Stack>
-        </CardContent>
+          ))}
+        </Stack>
       </Card>
     </Box>
   );
